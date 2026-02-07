@@ -1,0 +1,22 @@
+{
+  "name": "e2e-cgloria",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "playwright": "^1.58.1"
+  },
+  "devDependencies": {
+    "@playwright/mcp": "^0.0.64",
+    "prettier": "^3.8.1",
+    "tsconfig-paths": "^4.2.0"
+  }
+}
