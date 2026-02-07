@@ -7,6 +7,14 @@ export class Login {
     this.page = page;
   }
 
+  get usernameInput(): Locator {
+    return this.page.locator('input[aria-describedby="email-addon"]');
+  }
+
+  get passwordInput(): Locator {
+    return this.page.locator('input[aria-describedby="password-addon"]');
+  }
+
   getInputByPlaceholder(placeHolder: string): Locator {
     return this.page.getByPlaceholder(placeHolder);
   }

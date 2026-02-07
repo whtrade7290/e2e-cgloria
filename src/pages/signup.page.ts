@@ -10,45 +10,51 @@ export interface SignUpFormData {
 export class SignUpPage {
   constructor(private readonly page: Page) {}
 
-  get avatarSelectButton(): Locator {
-    return this.page.getByRole('button', { name: '画像を選択' });
-  }
-
   get accountInput(): Locator {
-    return this.page.getByPlaceholder('アカウント名を入力してください');
+    return this.page.getByTestId('signup-username');
   }
 
-  get passwordInputs(): Locator {
-    return this.page.locator('input[type="password"]');
+  get passwordInput(): Locator {
+    return this.page.getByTestId('signup-password');
+  }
+
+  get confirmPasswordInput(): Locator {
+    return this.page.getByTestId('signup-password-confirm');
   }
 
   get emailInput(): Locator {
-    return this.page.getByPlaceholder('メールアドレスを入力してください');
+    return this.page.getByTestId('signup-email');
   }
 
   get nameInput(): Locator {
-    return this.page.getByPlaceholder('名前を入力してください');
+    return this.page.getByTestId('signup-name');
   }
 
   get submitButton(): Locator {
-    return this.page.getByRole('button', { name: '会員登録' });
+    return this.page.getByTestId('signup-submit');
   }
 
   async fillAccount(value: string) {
     await this.accountInput.fill(value);
+    // focusout에서만 검증 로직이 실행되므로 blur 처리
+    await this.accountInput.blur();
   }
 
   async fillPassword(value: string) {
-    await this.passwordInputs.nth(0).fill(value);
-    await this.passwordInputs.nth(1).fill(value);
+    await this.passwordInput.fill(value);
+    await this.passwordInput.blur();
+    await this.confirmPasswordInput.fill(value);
+    await this.confirmPasswordInput.blur();
   }
 
   async fillEmail(value: string) {
     await this.emailInput.fill(value);
+    await this.emailInput.blur();
   }
 
   async fillName(value: string) {
     await this.nameInput.fill(value);
+    await this.nameInput.blur();
   }
 
   async fillForm(data: SignUpFormData) {

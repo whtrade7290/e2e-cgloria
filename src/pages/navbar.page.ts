@@ -36,6 +36,26 @@ export class Navbar {
     await this.alert.waitForHidden();
   }
 
+  async openAdminMenu() {
+    // 관리자 메뉴는 hover로 열리지만 테스트에서는 강제 클릭으로 펼친다
+    await this.page.locator('#adminPageDropdown').click({ force: true });
+  }
+
+  async clickAdminMenuItem(label: string) {
+    const item = this.page.locator('.dropdown-menu .dropdown-item', { hasText: label }).first();
+    await item.waitFor({ state: 'visible' });
+    await item.click();
+  }
+
+  private async openUserMenu() {
+    await this.container.locator('.user-menu-toggle').click();
+  }
+
+  async logoutThroughMenu() {
+    await this.openUserMenu();
+    await this.page.locator('.user-menu-dropdown .dropdown-item', { hasText: '로그아웃' }).click();
+  }
+
   getNavBtnContainer(): Locator {
     return this.container;
   }

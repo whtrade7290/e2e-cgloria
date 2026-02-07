@@ -7,6 +7,7 @@ export default defineConfig({
     // `page.goto('/')` 같이 상대 경로를 기본 URL 기준으로 처리합니다. 환경 변수로 덮어쓸 수 있습니다.
     baseURL: 'http://localhost:5173/',
     headless: false,
+    testIdAttribute: 'data-test-id',
   },
   projects: [
     // 주요 데스크톱 브라우저를 대상으로 돌립니다. 필요 없는 항목은 삭제해도 됩니다.

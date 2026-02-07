@@ -1,0 +1,10 @@
+{
+  "browser": {
+    "launchOptions": {
+      "headless": false
+    },
+    "contextOptions": {
+      "baseURL": "http://localhost:5173/"
+    }
+  }
+}

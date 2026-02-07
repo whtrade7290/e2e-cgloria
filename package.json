@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "mcp": "playwright-mcp --config=playwright.mcp.config.json --host=localhost --port=3210"
   },
   "keywords": [],
   "author": "",

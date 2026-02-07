@@ -23,7 +23,8 @@ export class SweetAlertPopup {
   }
 
   async expectTitle(text: string) {
-    await expect(this.title).toHaveText(text);
+    const normalize = (value: string) => value.replace(/\s+/g, ' ').trim();
+    await expect.poll(async () => normalize(await this.title.innerText())).toBe(normalize(text));
   }
 
   async clickButton(name: string) {
