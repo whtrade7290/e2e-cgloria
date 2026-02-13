@@ -5,7 +5,7 @@ export default defineConfig({
   testDir: './src/tests',
   use: {
     // `page.goto('/')` 같이 상대 경로를 기본 URL 기준으로 처리합니다. 환경 변수로 덮어쓸 수 있습니다.
-    baseURL: 'http://localhost:5173/',
+    baseURL: 'https://cgloria.duckdns.org/',
     headless: true,
     testIdAttribute: 'data-test-id',
   },
