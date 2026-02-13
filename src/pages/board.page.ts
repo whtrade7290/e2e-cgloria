@@ -102,6 +102,24 @@ export class BoardPage {
     await expect(this.page.locator('.detail-card h2')).toHaveText(text);
   }
 
+  async expectDetailImagesLoaded() {
+    const images = this.page.locator('.image-attachment-list img');
+    const imageCount = await images.count();
+    await expect(imageCount).toBeGreaterThan(0);
+    for (let index = 0; index < imageCount; index++) {
+      const image = images.nth(index);
+      await expect(image).toBeVisible();
+      await expect
+        .poll(async () =>
+          image.evaluate((node) => {
+            const element = node as HTMLImageElement;
+            return element.complete && element.naturalWidth > 0 && element.naturalHeight > 0;
+          }),
+        )
+        .toBeTruthy();
+    }
+  }
+
   async clickBackToList() {
     await this.page.getByRole('link', { name: '목록으로' }).click();
   }

@@ -288,6 +288,64 @@ test(`사진 게시판 상세 -> 목록으로 버튼 확인 (${PHOTO_DETAIL_BOAR
   await boardPage.expectListVisible();
 });
 
+test(`사진 게시판 카드 이미지가 정상적으로 노출된다 (${PHOTO_DETAIL_BOARD.displayName})`, async ({ page }) => {
+  const boardPage = new PhotoBoardPage(page, PHOTO_DETAIL_BOARD.path);
+  await boardPage.goto();
+  await boardPage.expectCardImagesLoaded();
+});
+
+test(`사진 게시판 상세 이미지가 정상적으로 노출된다 (${PHOTO_DETAIL_BOARD.displayName})`, async ({ page }) => {
+  const photoBoardPage = new PhotoBoardPage(page, PHOTO_DETAIL_BOARD.path);
+  await photoBoardPage.goto();
+  await photoBoardPage.openFirstCard();
+
+  const detailPage = new BoardPage(page, PHOTO_DETAIL_BOARD.path);
+  await detailPage.expectDetailTitle(PHOTO_DETAIL_BOARD.sampleTitle);
+  await detailPage.expectDetailImagesLoaded();
+});
+
+test('사진 게시판에서 파일 없이 글 작성 시 경고가 표시된다', async ({ page }) => {
+  const login = new Login(page);
+  await page.goto('/login');
+  await login.usernameInput.fill('member');
+  await login.passwordInput.fill('password1!');
+  await login.getButtonByName('로그인').click();
+
+  const loginAlert = new SweetAlertPopup(page);
+  await loginAlert.waitForVisible();
+  await loginAlert.expectTitle('로그인 되었습니다.');
+  await loginAlert.clickButton('OK');
+  await loginAlert.waitForHidden();
+
+  const boardPage = new PhotoBoardPage(page, PHOTO_WRITE_BOARD.path);
+  await boardPage.goto();
+  await boardPage.clickWriteButton();
+  await expect(page).toHaveURL(/\/write\?.*name=photo_board/);
+
+  const writePage = new WritePage(page);
+  const title = `이미지 없는 글 ${Date.now()}`;
+  const content = `이미지를 첨부하지 않은 본문 ${Date.now()}`;
+  await writePage.fillTitle(title);
+  await writePage.fillContent(content);
+  await writePage.submit();
+
+  const warnAlert = new SweetAlertPopup(page);
+  await warnAlert.waitForVisible();
+  let alertMessage = await warnAlert.getTitleText();
+  if (alertMessage === '글 내용을 입력해주세요.') {
+    await warnAlert.clickButton('OK');
+    await warnAlert.waitForHidden();
+    await writePage.fillContent(content);
+    await writePage.submit();
+    await warnAlert.waitForVisible();
+    alertMessage = await warnAlert.getTitleText();
+  }
+  expect(alertMessage).toBe('이미지를 최소 1개 이상 등록해주세요.');
+  await warnAlert.clickButton('OK');
+  await warnAlert.waitForHidden();
+  await expect(page).toHaveURL(/\/write\?.*name=photo_board/);
+});
+
 test('사진 게시판 글 작성 후 카드와 상세 화면에서 확인된다', async ({ page }) => {
   const login = new Login(page);
   await page.goto('/login');
@@ -354,6 +412,53 @@ test('사진 게시판 타인의 글 상세에서는 수정/삭제가 표시되�
   const detailPage = new BoardPage(page, PHOTO_DETAIL_BOARD.path);
   await detailPage.expectEditDeleteVisible(false);
   await detailPage.clickBackToList();
+});
+
+test('사진 게시판에서 파일을 모두 제거하면 글을 수정할 수 없다', async ({ page }) => {
+  const title = `포토 파일 필수 ${Date.now()}`;
+  const entryId = fakeApiServer.addBoardEntry('photo_board', {
+    title,
+    writer_name: '일반 유저',
+    writer: 'member',
+    content: '<p>첨부 파일 필수 테스트</p>',
+    files: JSON.stringify([{ filename: `photo_${Date.now()}.jpg` }]),
+  });
+
+  const login = new Login(page);
+  await page.goto('/login');
+  await login.usernameInput.fill('member');
+  await login.passwordInput.fill('password1!');
+  await login.getButtonByName('로그인').click();
+
+  const loginAlert = new SweetAlertPopup(page);
+  await loginAlert.waitForVisible();
+  await loginAlert.expectTitle('로그인 되었습니다.');
+  await loginAlert.clickButton('OK');
+  await loginAlert.waitForHidden();
+
+  await page.goto(`/detail/photo_board/${entryId}`);
+  const detailPage = new BoardPage(page, '/photo_board');
+  await detailPage.expectDetailTitle(title);
+  await detailPage.expectEditDeleteVisible(true);
+
+  await page.getByRole('link', { name: '글수정' }).click();
+  await expect(page).toHaveURL(/\/edit\?.*name=photo_board/);
+  const removeButtons = page.getByRole('button', { name: '파일 삭제' });
+  await expect(removeButtons.first()).toBeVisible();
+  const existingFileCount = await removeButtons.count();
+  for (let index = 0; index < existingFileCount; index++) {
+    await removeButtons.first().click();
+  }
+
+  const editPage = new EditPage(page);
+  await editPage.submit();
+
+  const warnAlert = new SweetAlertPopup(page);
+  await warnAlert.waitForVisible();
+  await warnAlert.expectTitle('이미지를 최소 1개 이상 등록해주세요.');
+  await warnAlert.clickButton('OK');
+  await warnAlert.waitForHidden();
+  await expect(page).toHaveURL(/\/edit\?.*name=photo_board/);
 });
 
 test('사진 게시판에서 본인이 쓴 게시물을 수정할 수 있다', async ({ page }) => {

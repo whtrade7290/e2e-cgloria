@@ -27,6 +27,11 @@ export class SweetAlertPopup {
     await expect.poll(async () => normalize(await this.title.innerText())).toBe(normalize(text));
   }
 
+  async getTitleText() {
+    const text = await this.title.innerText();
+    return text.replace(/\s+/g, ' ').trim();
+  }
+
   async clickButton(name: string) {
     await this.actions.getByRole('button', { name, exact: true }).click();
   }

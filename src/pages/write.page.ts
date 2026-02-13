@@ -26,8 +26,29 @@ export class WritePage {
   }
 
   async fillContent(value: string) {
-    await this.contentEditor.click();
-    await this.contentEditor.fill(value);
+    await this.contentEditor.waitFor({ state: 'visible' });
+    await this.page.waitForFunction(() => {
+      const editable = document.querySelector('.ck-editor__editable[role="textbox"]') as HTMLElement & {
+        ckeditorInstance?: unknown;
+      };
+      return !!editable?.ckeditorInstance;
+    });
+    const updated = await this.page.evaluate((text) => {
+      const editable = document.querySelector('.ck-editor__editable[role="textbox"]') as HTMLElement & {
+        ckeditorInstance?: { setData: (data: string) => void };
+      };
+      const editor = editable?.ckeditorInstance;
+      if (editor) {
+        editor.setData(`<p>${text}</p>`);
+        return true;
+      }
+      return false;
+    }, value);
+    if (!updated) {
+      await this.contentEditor.click();
+      await this.contentEditor.pressSequentially(value);
+    }
+    await expect(this.contentEditor).toContainText(value);
   }
 
   async submit() {

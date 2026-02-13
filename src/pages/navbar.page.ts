@@ -21,7 +21,10 @@ export class Navbar {
   }
 
   async switchToKorean() {
-    await this.container.getByText('한국어').click();
+    await this.container.waitFor({ state: 'visible' });
+    const button = this.container.getByText('한국어');
+    if ((await button.count()) === 0) return;
+    await button.click();
     await this.alert.waitForVisible();
     await this.alert.expectTitle('한국어로 변경하시겠습니까?');
     await this.alert.clickButton('OK');
@@ -29,11 +32,23 @@ export class Navbar {
   }
 
   async switchToJapanase() {
-    await this.container.getByText('日本語').click();
+    await this.container.waitFor({ state: 'visible' });
+    const button = this.container.getByText('日本語');
+    if ((await button.count()) === 0) return;
+    await button.click();
     await this.alert.waitForVisible();
     await this.alert.expectTitle('日本語に切り替えますか？');
     await this.alert.clickButton('OK');
     await this.alert.waitForHidden();
+  }
+
+  async openWithDiaryMenu() {
+    await this.page.locator('#withDiaryDropdown').click({ force: true });
+    const menuItem = this.page
+      .locator('.dropdown-menu .dropdown-item', { hasText: /예수동행일기|イエス同行日記/ })
+      .first();
+    await menuItem.waitFor({ state: 'visible' });
+    await menuItem.click({ force: true });
   }
 
   async openAdminMenu() {
@@ -54,6 +69,13 @@ export class Navbar {
   async logoutThroughMenu() {
     await this.openUserMenu();
     await this.page.locator('.user-menu-dropdown .dropdown-item', { hasText: '로그아웃' }).click();
+    await this.alert.waitForVisible();
+    await this.alert.expectTitle('로그아웃 하시겠습니까?');
+    await this.alert.clickButton('OK');
+    await this.alert.waitForVisible();
+    await this.alert.expectTitle('로그아웃 되었습니다.');
+    await this.alert.clickButton('OK');
+    await this.alert.waitForHidden();
   }
 
   getNavBtnContainer(): Locator {

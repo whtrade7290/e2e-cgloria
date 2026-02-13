@@ -2,6 +2,7 @@ import { Page, Locator, expect } from 'playwright/test';
 
 export class PhotoBoardPage {
   private readonly cards: Locator;
+  private readonly cardImages: Locator;
   private readonly sideMenu: Locator;
   private readonly searchInput: Locator;
   private readonly searchButton: Locator;
@@ -9,6 +10,7 @@ export class PhotoBoardPage {
 
   constructor(private readonly page: Page, private readonly path: string) {
     this.cards = page.locator('.card.card-plain');
+    this.cardImages = this.cards.locator('img');
     this.sideMenu = page.locator('.display-sideMenu');
     this.searchInput = page
       .locator('.d-none.d-lg-flex.justify-content-center input[placeholder="search"]')
@@ -74,5 +76,22 @@ export class PhotoBoardPage {
 
   async expectListVisible() {
     await expect(this.cards.first()).toBeVisible();
+  }
+
+  async expectCardImagesLoaded() {
+    const imageCount = await this.cardImages.count();
+    await expect(imageCount).toBeGreaterThan(0);
+    for (let index = 0; index < imageCount; index++) {
+      const image = this.cardImages.nth(index);
+      await expect(image).toBeVisible();
+      await expect
+        .poll(async () =>
+          image.evaluate((img) => {
+            const element = img as HTMLImageElement;
+            return element.complete && element.naturalWidth > 0 && element.naturalHeight > 0;
+          }),
+        )
+        .toBeTruthy();
+    }
   }
 }
