@@ -13,7 +13,7 @@ test('한국어 전환', async ({ page }) => {
   await navbar.switchToKorean();
 
   // 결과 검증(핵심 1~2개만)
-  await expect(page.getByRole('link', { name: '중앙영광교회' })).toBeVisible();
+  await expect(page.locator('.navbar-brand')).toHaveText('중앙영광교회');
   await expect(page.locator('.page-header .main-font')).toHaveText('중앙영광교회');
 });
 
@@ -25,7 +25,7 @@ test('한국어 전환 후 일본어 전환', async ({ page }) => {
   await navbar.switchToJapanase();
 
   // 결과 검증(핵심 1~2개만)
-  await expect(page.getByRole('link', { name: '中央栄光教会' })).toBeVisible();
+  await expect(page.locator('.navbar-brand')).toHaveText('中央栄光教会');
   await expect(page.locator('.page-header .main-font')).toHaveText('中央栄光教会');
 });
 

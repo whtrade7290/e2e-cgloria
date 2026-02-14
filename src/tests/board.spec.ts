@@ -582,7 +582,9 @@ test('본인이 쓴 게시물 수정 시 내용이 반영된다', async ({ page 
   await editPage.submit();
 
   await page.goto(`/detail/general_forum/${entryId}`);
-  await detailPage.expectDetailTitle(updatedTitle);
+  await expect
+    .poll(async () => page.locator('.detail-card h2').innerText(), { timeout: 8000 })
+    .toContain(updatedTitle);
   await expect(page.locator('.content-container')).toContainText(updatedContent);
 });
 test('타인의 게시글 상세에서는 수정/삭제 버튼이 표시되지 않는다', async ({ page }) => {

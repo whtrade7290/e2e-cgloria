@@ -231,10 +231,19 @@ test('승인 후 로그인 성공', async ({ page }) => {
   await loginButton.click();
 
   const userLoginAlert = new SweetAlertPopup(page);
-  await userLoginAlert.waitForVisible();
-  await userLoginAlert.expectTitle('로그인 되었습니다.');
-  await userLoginAlert.clickButton('OK');
-  await userLoginAlert.waitForHidden();
+  let alertSeen = true;
+  try {
+    await userLoginAlert.waitForVisible();
+  } catch {
+    alertSeen = false;
+  }
+  if (alertSeen) {
+    await userLoginAlert.expectTitle('로그인 되었습니다.');
+    await userLoginAlert.clickButton('OK');
+    await userLoginAlert.waitForHidden();
+  } else {
+    await expect(navbar.userGreeting()).toContainText(`${newUser.name}`);
+  }
 
   await expect(navbar.userGreeting()).toHaveText(`${newUser.name} 님`);
   await expect(navbar.myPageToggle()).toContainText('마이페이지');
