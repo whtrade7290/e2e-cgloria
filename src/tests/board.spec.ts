@@ -211,8 +211,8 @@ test('일반 유저 게시글 작성 시 최상단 노출 및 상세 확인', as
   await writePage.fillTitle(title);
   await writePage.fillContent(content);
   await writePage.submit();
+  await expect(page).toHaveURL(/\/general_forum$/);
   const refreshedBoardPage = new BoardPage(page, '/general_forum');
-  await refreshedBoardPage.goto();
   await refreshedBoardPage.expectFirstRowTitle(title);
   await refreshedBoardPage.expectFirstRowWriter('일반 유저');
   await refreshedBoardPage.expectFirstRowDateContains(new Date().getFullYear().toString());
@@ -580,6 +580,7 @@ test('본인이 쓴 게시물 수정 시 내용이 반영된다', async ({ page 
   await editPage.fillTitle(updatedTitle);
   await editPage.fillContent(updatedContent);
   await editPage.submit();
+  await expect(page).toHaveURL(/\/general_forum$/);
 
   await page.goto(`/detail/general_forum/${entryId}`);
   await expect

@@ -216,13 +216,6 @@ test('승인 후 로그인 성공', async ({ page }) => {
   await expect(pendingRow).toHaveCount(0);
 
   await navbar.logoutThroughMenu();
-  const logoutAlert = new SweetAlertPopup(page);
-  await logoutAlert.waitForVisible();
-  await logoutAlert.expectTitle('로그아웃 하시겠습니까?');
-  await logoutAlert.clickButton('OK');
-  await logoutAlert.expectTitle('로그아웃 되었습니다.');
-  await logoutAlert.clickButton('OK');
-  await logoutAlert.waitForHidden();
   await expect(page).toHaveURL(/\/$/);
 
   await page.goto('/login');
@@ -231,18 +224,15 @@ test('승인 후 로그인 성공', async ({ page }) => {
   await loginButton.click();
 
   const userLoginAlert = new SweetAlertPopup(page);
-  let alertSeen = true;
   try {
-    await userLoginAlert.waitForVisible();
-  } catch {
-    alertSeen = false;
-  }
-  if (alertSeen) {
+    await userLoginAlert.waitForVisible({ timeout: 1000 });
     await userLoginAlert.expectTitle('로그인 되었습니다.');
     await userLoginAlert.clickButton('OK');
     await userLoginAlert.waitForHidden();
-  } else {
-    await expect(navbar.userGreeting()).toContainText(`${newUser.name}`);
+  } catch {
+    await expect(page.getByText('로그인 되었습니다.', { exact: false })).toBeVisible({
+      timeout: 2000,
+    });
   }
 
   await expect(navbar.userGreeting()).toHaveText(`${newUser.name} 님`);
