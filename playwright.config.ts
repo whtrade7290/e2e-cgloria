@@ -12,7 +12,7 @@ export default defineConfig({
     testIdAttribute: 'data-test-id',
   },
   webServer: {
-    command: 'cd ../vue-cgloria-www && npm run dev -- --host 127.0.0.1 --port 5173',
+    command: 'cd .. && npm run dev -- --host 127.0.0.1 --port 5173',
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
   },
